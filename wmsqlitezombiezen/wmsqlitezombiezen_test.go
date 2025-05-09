@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc/tests"
+	"github.com/ThreeDotsLabs/watermill-sqlite/test"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/google/uuid"
 	"zombiezen.com/go/sqlite"
@@ -27,7 +27,7 @@ func newTestConnection(t *testing.T, connectionDSN string) *sqlite.Conn {
 	return conn
 }
 
-func NewPubSubFixture(connectionDSN string) tests.PubSubFixture {
+func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
 	return func(t *testing.T, consumerGroup string) (message.Publisher, message.Subscriber) {
 		publisherDB := newTestConnection(t, connectionDSN)
 
@@ -64,11 +64,11 @@ func NewPubSubFixture(connectionDSN string) tests.PubSubFixture {
 	}
 }
 
-func NewEphemeralDB(t *testing.T) tests.PubSubFixture {
+func NewEphemeralDB(t *testing.T) test.PubSubFixture {
 	return NewPubSubFixture("file:" + uuid.New().String() + "?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
 }
 
-func NewFileDB(t *testing.T) tests.PubSubFixture {
+func NewFileDB(t *testing.T) test.PubSubFixture {
 	file := filepath.Join(t.TempDir(), uuid.New().String()+".sqlite3")
 	t.Cleanup(func() {
 		if err := os.Remove(file); err != nil {
@@ -86,16 +86,16 @@ func TestFullConfirmityToModerncImplementation(t *testing.T) {
 	t.Run("importedTestsFromModernc", func(t *testing.T) {
 		// fixture := NewFileDB(t)
 		fixture := NewEphemeralDB(t)
-		t.Run("basic functionality", tests.TestBasicSendRecieve(fixture))
-		t.Run("one publisher three subscribers", tests.TestOnePublisherThreeSubscribers(fixture, 1000))
-		t.Run("perpetual locks", tests.TestHungOperations(fixture))
+		t.Run("basic functionality", test.TestBasicSendRecieve(fixture))
+		t.Run("one publisher three subscribers", test.TestOnePublisherThreeSubscribers(fixture, 1000))
+		t.Run("perpetual locks", test.TestHungOperations(fixture))
 	})
 
 	t.Run("acceptanceTestsImportedFromModernc", func(t *testing.T) {
 		if testing.Short() {
 			t.Skip("acceptance tests take several minutes to complete for all file and memory bound transactions")
 		}
-		t.Run("file bound transactions", tests.OfficialImplementationAcceptance(tests.PubSubFixture(NewFileDB(t))))
-		t.Run("memory bound transactions", tests.OfficialImplementationAcceptance(tests.PubSubFixture(NewEphemeralDB(t))))
+		t.Run("file bound transactions", test.OfficialImplementationAcceptance(test.PubSubFixture(NewFileDB(t))))
+		t.Run("memory bound transactions", test.OfficialImplementationAcceptance(test.PubSubFixture(NewEphemeralDB(t))))
 	})
 }

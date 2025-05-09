@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc/tests"
+	"github.com/ThreeDotsLabs/watermill-sqlite/test"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/google/uuid"
@@ -28,7 +28,7 @@ func newTestConnection(t *testing.T, connectionDSN string) *sql.DB {
 	return db
 }
 
-func NewPubSubFixture(connectionDSN string) tests.PubSubFixture {
+func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
 	return func(t *testing.T, consumerGroup string) (message.Publisher, message.Subscriber) {
 		publisherDB := newTestConnection(t, connectionDSN)
 
@@ -65,11 +65,11 @@ func NewPubSubFixture(connectionDSN string) tests.PubSubFixture {
 	}
 }
 
-func NewEphemeralDB(t *testing.T) tests.PubSubFixture {
+func NewEphemeralDB(t *testing.T) test.PubSubFixture {
 	return NewPubSubFixture("file:" + uuid.New().String() + "?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
 }
 
-func NewFileDB(t *testing.T) tests.PubSubFixture {
+func NewFileDB(t *testing.T) test.PubSubFixture {
 	file := filepath.Join(t.TempDir(), uuid.New().String()+".sqlite3")
 	t.Cleanup(func() {
 		if err := os.Remove(file); err != nil {
@@ -85,17 +85,17 @@ func TestPubSub(t *testing.T) {
 	// 	t.Skip("working on acceptance tests")
 	// }
 	inMemory := NewEphemeralDB(t)
-	t.Run("basic functionality", tests.TestBasicSendRecieve(inMemory))
-	t.Run("one publisher three subscribers", tests.TestOnePublisherThreeSubscribers(inMemory, 1000))
-	t.Run("perpetual locks", tests.TestHungOperations(inMemory))
+	t.Run("basic functionality", test.TestBasicSendRecieve(inMemory))
+	t.Run("one publisher three subscribers", test.TestOnePublisherThreeSubscribers(inMemory, 1000))
+	t.Run("perpetual locks", test.TestHungOperations(inMemory))
 }
 
 func TestOfficialImplementationAcceptance(t *testing.T) {
 	if testing.Short() {
 		t.Skip("acceptance tests take several minutes to complete for all file and memory bound transactions")
 	}
-	t.Run("file bound transactions", tests.OfficialImplementationAcceptance(NewFileDB(t)))
-	t.Run("memory bound transactions", tests.OfficialImplementationAcceptance(NewEphemeralDB(t)))
+	t.Run("file bound transactions", test.OfficialImplementationAcceptance(NewFileDB(t)))
+	t.Run("memory bound transactions", test.OfficialImplementationAcceptance(NewEphemeralDB(t)))
 }
 
 func BenchmarkAll(b *testing.B) {
@@ -115,8 +115,8 @@ func BenchmarkAll(b *testing.B) {
 		BlockPublishUntilSubscriberAck: false,
 	}, nil)
 
-	b.Run("go channel publishing", tests.NewPublishingBenchmark(fastest))
-	b.Run("go channel subscription", tests.NewSubscriptionBenchmark(fastest))
+	b.Run("go channel publishing", test.NewPublishingBenchmark(fastest))
+	b.Run("go channel subscription", test.NewSubscriptionBenchmark(fastest))
 
 	db, err := sql.Open("sqlite", "file:"+uuid.New().String()+"?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
 	if err != nil {
@@ -142,6 +142,6 @@ func BenchmarkAll(b *testing.B) {
 	if err != nil {
 		b.Fatal("unable to create test subscriber", err)
 	}
-	b.Run("SQLite publishing to memory", tests.NewPublishingBenchmark(pub))
-	b.Run("SQLite subscription from memory", tests.NewSubscriptionBenchmark(sub))
+	b.Run("SQLite publishing to memory", test.NewPublishingBenchmark(pub))
+	b.Run("SQLite subscription from memory", test.NewSubscriptionBenchmark(sub))
 }
