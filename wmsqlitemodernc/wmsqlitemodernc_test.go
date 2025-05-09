@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc/tests"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
-	"github.com/dkotik/watermillsqlite/wmsqlitemodernc/tests"
 	"github.com/google/uuid"
 	_ "modernc.org/sqlite"
 )

@@ -1,4 +1,4 @@
-module github.com/dkotik/watermillsqlite/wmsqlitemodernc
+module github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc
 
 go 1.21
 

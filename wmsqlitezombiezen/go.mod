@@ -1,10 +1,10 @@
-module github.com/dkotik/watermillsqlite/wmsqlitezombiezen
+module github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen
 
 go 1.21.0
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.4.6
-	github.com/dkotik/watermillsqlite/wmsqlitemodernc v0.0.4
+	github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc v0.0.4
 	github.com/google/uuid v1.6.0
 	zombiezen.com/go/sqlite v1.4.0
 )

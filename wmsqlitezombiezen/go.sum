@@ -5,10 +5,10 @@ github.com/cenkalti/backoff/v3 v3.2.2/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4r
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dkotik/watermillsqlite/wmsqlitemodernc v0.0.2 h1:1+eo11Hc9HN9KNlRNjIkAoeiyxdg1X4FNrXsve35JXE=
-github.com/dkotik/watermillsqlite/wmsqlitemodernc v0.0.2/go.mod h1:wr8UYnB7Mvbmbb9gTRbL8CQ+1IQmMUltalxxCYNFMVQ=
-github.com/dkotik/watermillsqlite/wmsqlitemodernc v0.0.4 h1:B0471iehUAgULwucAK3AqxkcAHaEElKeOylqeGZJRcM=
-github.com/dkotik/watermillsqlite/wmsqlitemodernc v0.0.4/go.mod h1:6BNC5EaHcLRqNeSpMgpXudyMoBVCzOW5fmXh0OcRPcA=
+github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc v0.0.2 h1:1+eo11Hc9HN9KNlRNjIkAoeiyxdg1X4FNrXsve35JXE=
+github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc v0.0.2/go.mod h1:wr8UYnB7Mvbmbb9gTRbL8CQ+1IQmMUltalxxCYNFMVQ=
+github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc v0.0.4 h1:B0471iehUAgULwucAK3AqxkcAHaEElKeOylqeGZJRcM=
+github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc v0.0.4/go.mod h1:6BNC5EaHcLRqNeSpMgpXudyMoBVCzOW5fmXh0OcRPcA=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
