@@ -1,29 +1,42 @@
+.PHONY: test test_v test_short test_race test_stress test_reconnect test_codecov up wait build fmt update_watermill
+
 up:
-	docker compose up -d
+	# nothing to do - for compatibility with other makefiles
 
 test:
-	go test ./...
+	(cd wmsqlitezombiezen && go test -count=5 -failfast -timeout=15m ./...)
+	(cd wmsqlitemodernc && go test -count=5 -failfast -timeout=15m ./...)
 
 test_v:
-	go test -v ./...
+	(cd wmsqlitemodernc && go test -v -count=5 -failfast -timeout=15m ./...)
+	(cd wmsqlitezombiezen && go test -v -count=5 -failfast -timeout=15m ./...)
 
 test_short:
-	go test ./... -short
+	(cd wmsqlitemodernc && go test -short -count=5 -failfast -timeout=15m ./...)
+	(cd wmsqlitezombiezen && go test -short -count=5 -failfast -timeout=15m ./...)
 
 test_race:
-	go test ./... -short -race
+	(cd wmsqlitemodernc && go test -v -count=5 -failfast -timeout=18m -race ./...)
+	(cd wmsqlitezombiezen && go test -v -count=5 -failfast -timeout=18m -race ./...)
 
 test_stress:
-	go test -tags=stress -timeout=45m ./...
+	(cd wmsqlitemodernc && go test -v -count=15 -failfast -timeout=30m ./...)
+	(cd wmsqlitezombiezen && go test -v -count=15 -failfast -timeout=30m ./...)
 
 test_reconnect:
-	go test -tags=reconnect ./...
+	# nothing to do - for compatibility with other makefiles
 
 test_codecov: up wait
-	go test -coverprofile=coverage.out -covermode=atomic ./...
+	(cd wmsqlitemodernc && go test -coverprofile=coverage.out -covermode=atomic ./...)
+	(cd wmsqlitezombiezen && go test -coverprofile=coverage.out -covermode=atomic ./...)
+
+
+benchmark:
+	(cd test && go wmsqlitemodernc -bench=. -run=^BenchmarkAll$$ -timeout=15s)
+	(cd test && go wmsqlitezombiezen -bench=. -run=^BenchmarkAll$$ -timeout=15s)
 
 wait:
-	go run github.com/ThreeDotsLabs/wait-for@latest localhost:4566
+	# nothing to do - for compatibility with other makefiles
 
 build:
 	go build ./...
@@ -39,15 +52,4 @@ update_watermill:
 	sed -i '\|go 1\.|d' go.mod
 	go mod edit -fmt
 
-default:
-	(cd wmsqlitemodernc && go test -short -failfast ./...)
-	(cd wmsqlitezombiezen && go test -short -failfast ./...)
-test:
-	(cd wmsqlitemodernc && go test -v -count=5 -failfast -timeout=15m ./...)
-	(cd wmsqlitezombiezen && go test -v -count=5 -failfast -timeout=15m ./...)
-test_race:
-	(cd wmsqlitemodernc && go test -v -count=5 -failfast -timeout=18m -race ./...)
-	(cd wmsqlitezombiezen && go test -v -count=5 -failfast -timeout=18m -race ./...)
-benchmark:
-	(cd wmsqlitemodernc && go test -bench=. -run=^BenchmarkAll$$ -timeout=15s)
-	(cd wmsqlitezombiezen && go test -bench=. -run=^BenchmarkAll$$ -timeout=15s)
+default: test
