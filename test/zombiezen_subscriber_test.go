@@ -1,17 +1,18 @@
-package wmsqlitezombiezen
+package tests
 
 import (
 	"context"
 	"testing"
 	"time"
 
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/google/uuid"
 )
 
-func TestBasicSendRecieve(t *testing.T) {
+func TestBasicSendRecieve_zombiezen(t *testing.T) {
 	topic := "test-basic-publish-subscribe"
-	pub, sub := NewEphemeralDB(t)(t, DefaultConsumerGroupName)
+	pub, sub := NewEphemeralDBZombieZen(t)(t, wmsqlitezombiezen.DefaultConsumerGroupName)
 	t.Run("publish 20 messages", func(t *testing.T) {
 		t.Parallel()
 

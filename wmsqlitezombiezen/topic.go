@@ -22,7 +22,7 @@ func validateTopicName(topic string) error {
 	return nil
 }
 
-func createTopicAndOffsetsTablesIfAbsent(conn *sqlite.Conn, messagesTableName, offsetsTableName string) (err error) {
+func CreateTopicAndOffsetsTablesIfAbsent(conn *sqlite.Conn, messagesTableName, offsetsTableName string) (err error) {
 	if err = validateTopicName(messagesTableName); err != nil {
 		return err
 	}

@@ -266,7 +266,7 @@ func (s *subscriber) Subscribe(ctx context.Context, topic string) (c <-chan *mes
 	messagesTableName := s.TopicTableNameGenerator(topic)
 	offsetsTableName := s.OffsetsTableNameGenerator(topic)
 	if s.InitializeSchema {
-		if err = createTopicAndOffsetsTablesIfAbsent(
+		if err = CreateTopicAndOffsetsTablesIfAbsent(
 			conn,
 			messagesTableName,
 			offsetsTableName,

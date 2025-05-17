@@ -1,10 +1,11 @@
-package wmsqlitezombiezen
+package tests
 
 import (
 	"context"
 	"testing"
 	"time"
 
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/google/uuid"
 	"zombiezen.com/go/sqlite/sqlitex"
@@ -12,13 +13,13 @@ import (
 
 func TestPublishingInTransaction(t *testing.T) {
 	DSN := "file:" + uuid.New().String() + "?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared"
-	conn := newTestConnection(t, DSN)
+	conn := newTestConnectionZombiezen(t, DSN)
 
 	ctx, cancel := context.WithCancel(context.TODO()) // TODO: replace with t.Context() when Watermill bumps up to 1.24
 	defer cancel()
 	topic := "TestPublishingInTransaction"
-	tg := TableNameGenerators{}.WithDefaultGeneratorsInsteadOfNils()
-	if err := createTopicAndOffsetsTablesIfAbsent(
+	tg := wmsqlitezombiezen.TableNameGenerators{}.WithDefaultGeneratorsInsteadOfNils()
+	if err := wmsqlitezombiezen.CreateTopicAndOffsetsTablesIfAbsent(
 		conn,
 		tg.Topic(topic),
 		tg.Offsets(topic),
@@ -34,9 +35,9 @@ func TestPublishingInTransaction(t *testing.T) {
 
 	closer := sqlitex.Transaction(conn)
 
-	pub0, err := NewPublisher(
+	pub0, err := wmsqlitezombiezen.NewPublisher(
 		conn,
-		PublisherOptions{
+		wmsqlitezombiezen.PublisherOptions{
 			// ParentContext: t.Context(), // TODO: when Watermill upgrades to Golang 1.24
 			TableNameGenerators: tg,
 		},
@@ -72,7 +73,7 @@ func TestPublishingInTransaction(t *testing.T) {
 	// 	t.Fatal("unable to release rows:", err)
 	// }
 
-	sub, err := NewSubscriber(DSN, SubscriberOptions{
+	sub, err := wmsqlitezombiezen.NewSubscriber(DSN, wmsqlitezombiezen.SubscriberOptions{
 		PollInterval:        time.Millisecond * 20,
 		LockTimeout:         time.Second,
 		InitializeSchema:    true,

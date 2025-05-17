@@ -128,7 +128,7 @@ func (p *publisher) initializeSchema(
 	defer cancel()
 	p.mu.Lock()
 	if _, ok := p.knownTopics[topic]; !ok {
-		if err = createTopicAndOffsetsTablesIfAbsent(
+		if err = CreateTopicAndOffsetsTablesIfAbsent(
 			ctx,
 			p.DB,
 			messagesTableName,

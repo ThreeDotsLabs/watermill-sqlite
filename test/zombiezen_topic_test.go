@@ -1,16 +1,17 @@
-package wmsqlitezombiezen
+package tests
 
 import (
 	"testing"
 
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen"
 	"zombiezen.com/go/sqlite"
 	"zombiezen.com/go/sqlite/sqlitex"
 )
 
 func TestTopicTableCreation(t *testing.T) {
-	conn := newTestConnection(t, ":memory:")
+	conn := newTestConnectionZombiezen(t, ":memory:")
 
-	err := createTopicAndOffsetsTablesIfAbsent(
+	err := wmsqlitezombiezen.CreateTopicAndOffsetsTablesIfAbsent(
 		conn,
 		"messagesTableName",
 		"offsetsTableName",
