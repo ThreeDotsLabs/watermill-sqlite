@@ -1,6 +1,6 @@
 module github.com/ThreeDotsLabs/watermill-sqlite/test
 
-go 1.23.3
+go 1.21.0
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.4.6

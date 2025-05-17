@@ -1,6 +1,6 @@
 module github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc
 
-go 1.21
+go 1.21.0
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.4.6
