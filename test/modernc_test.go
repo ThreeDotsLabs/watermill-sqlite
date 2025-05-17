@@ -1,4 +1,4 @@
-package wmsqlitemodernc
+package tests
 
 import (
 	"database/sql"
@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill-sqlite/test"
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/ThreeDotsLabs/watermill/pubsub/gochannel"
 	"github.com/google/uuid"
 	_ "modernc.org/sqlite"
 )
 
-func newTestConnection(t *testing.T, connectionDSN string) *sql.DB {
+func newTestConnectionModernC(t *testing.T, connectionDSN string) *sql.DB {
 	db, err := sql.Open("sqlite", connectionDSN)
 	if err != nil {
 		t.Fatal("unable to create test SQLite connetion", err)
@@ -28,13 +28,13 @@ func newTestConnection(t *testing.T, connectionDSN string) *sql.DB {
 	return db
 }
 
-func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
+func NewPubSubFixtureModernC(connectionDSN string) PubSubFixture {
 	return func(t *testing.T, consumerGroup string) (message.Publisher, message.Subscriber) {
-		publisherDB := newTestConnection(t, connectionDSN)
+		publisherDB := newTestConnectionModernC(t, connectionDSN)
 
-		pub, err := NewPublisher(
+		pub, err := wmsqlitemodernc.NewPublisher(
 			publisherDB,
-			PublisherOptions{
+			wmsqlitemodernc.PublisherOptions{
 				InitializeSchema: true,
 			})
 		if err != nil {
@@ -46,10 +46,10 @@ func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
 			}
 		})
 
-		subscriberDB := newTestConnection(t, connectionDSN)
-		sub, err := NewSubscriber(subscriberDB, SubscriberOptions{
+		subscriberDB := newTestConnectionModernC(t, connectionDSN)
+		sub, err := wmsqlitemodernc.NewSubscriber(subscriberDB, wmsqlitemodernc.SubscriberOptions{
 			PollInterval:         time.Millisecond * 20,
-			ConsumerGroupMatcher: NewStaticConsumerGroupMatcher(consumerGroup),
+			ConsumerGroupMatcher: wmsqlitemodernc.NewStaticConsumerGroupMatcher(consumerGroup),
 			InitializeSchema:     true,
 		})
 		if err != nil {
@@ -65,11 +65,11 @@ func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
 	}
 }
 
-func NewEphemeralDB(t *testing.T) test.PubSubFixture {
-	return NewPubSubFixture("file:" + uuid.New().String() + "?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
+func NewEphemeralDBModernC(t *testing.T) PubSubFixture {
+	return NewPubSubFixtureModernC("file:" + uuid.New().String() + "?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
 }
 
-func NewFileDB(t *testing.T) test.PubSubFixture {
+func NewFileDBModernC(t *testing.T) PubSubFixture {
 	file := filepath.Join(t.TempDir(), uuid.New().String()+".sqlite3")
 	t.Cleanup(func() {
 		if err := os.Remove(file); err != nil {
@@ -77,28 +77,28 @@ func NewFileDB(t *testing.T) test.PubSubFixture {
 		}
 	})
 	// &_txlock=exclusive
-	return NewPubSubFixture("file:" + file + "?journal_mode=WAL&busy_timeout=5000&secure_delete=true&foreign_keys=true&cache=shared")
+	return NewPubSubFixtureModernC("file:" + file + "?journal_mode=WAL&busy_timeout=5000&secure_delete=true&foreign_keys=true&cache=shared")
 }
 
-func TestPubSub(t *testing.T) {
+func TestPubSub_modernc(t *testing.T) {
 	// if !testing.Short() {
 	// 	t.Skip("working on acceptance tests")
 	// }
-	inMemory := NewEphemeralDB(t)
-	t.Run("basic functionality", test.TestBasicSendRecieve(inMemory))
-	t.Run("one publisher three subscribers", test.TestOnePublisherThreeSubscribers(inMemory, 1000))
-	t.Run("perpetual locks", test.TestHungOperations(inMemory))
+	inMemory := NewEphemeralDBModernC(t)
+	t.Run("basic functionality", TestBasicSendRecieve(inMemory))
+	t.Run("one publisher three subscribers", TestOnePublisherThreeSubscribers(inMemory, 1000))
+	t.Run("perpetual locks", TestHungOperations(inMemory))
 }
 
-func TestOfficialImplementationAcceptance(t *testing.T) {
+func TestOfficialImplementationAcceptance_modern_c(t *testing.T) {
 	if testing.Short() {
 		t.Skip("acceptance tests take several minutes to complete for all file and memory bound transactions")
 	}
-	t.Run("file bound transactions", test.OfficialImplementationAcceptance(NewFileDB(t)))
-	t.Run("memory bound transactions", test.OfficialImplementationAcceptance(NewEphemeralDB(t)))
+	t.Run("file bound transactions", OfficialImplementationAcceptance(NewFileDBModernC(t)))
+	t.Run("memory bound transactions", OfficialImplementationAcceptance(NewEphemeralDBModernC(t)))
 }
 
-func BenchmarkAll(b *testing.B) {
+func BenchmarkAll_modern_c(b *testing.B) {
 	fastest := gochannel.NewGoChannel(gochannel.Config{
 		// Output channel buffer size.
 		// OutputChannelBuffer int64
@@ -115,8 +115,8 @@ func BenchmarkAll(b *testing.B) {
 		BlockPublishUntilSubscriberAck: false,
 	}, nil)
 
-	b.Run("go channel publishing", test.NewPublishingBenchmark(fastest))
-	b.Run("go channel subscription", test.NewSubscriptionBenchmark(fastest))
+	b.Run("go channel publishing", NewPublishingBenchmark(fastest))
+	b.Run("go channel subscription", NewSubscriptionBenchmark(fastest))
 
 	db, err := sql.Open("sqlite", "file:"+uuid.New().String()+"?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
 	if err != nil {
@@ -129,19 +129,19 @@ func BenchmarkAll(b *testing.B) {
 		}
 	})
 
-	pub, err := NewPublisher(db, PublisherOptions{
+	pub, err := wmsqlitemodernc.NewPublisher(db, wmsqlitemodernc.PublisherOptions{
 		InitializeSchema: true,
 	})
 	if err != nil {
 		b.Fatal("unable to create test publisher", err)
 	}
-	sub, err := NewSubscriber(db, SubscriberOptions{
+	sub, err := wmsqlitemodernc.NewSubscriber(db, wmsqlitemodernc.SubscriberOptions{
 		BatchSize:    700,
 		PollInterval: time.Millisecond * 10,
 	})
 	if err != nil {
 		b.Fatal("unable to create test subscriber", err)
 	}
-	b.Run("SQLite publishing to memory", test.NewPublishingBenchmark(pub))
-	b.Run("SQLite subscription from memory", test.NewSubscriptionBenchmark(sub))
+	b.Run("SQLite publishing to memory", NewPublishingBenchmark(pub))
+	b.Run("SQLite subscription from memory", NewSubscriptionBenchmark(sub))
 }

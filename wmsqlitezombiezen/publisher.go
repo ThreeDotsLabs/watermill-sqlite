@@ -88,7 +88,7 @@ func (p *publisher) Publish(topic string, messages ...*message.Message) (err err
 
 	if p.InitializeSchema {
 		if _, ok := p.knownTopics[topic]; !ok {
-			if err = createTopicAndOffsetsTablesIfAbsent(
+			if err = CreateTopicAndOffsetsTablesIfAbsent(
 				p.connection,
 				messagesTableName,
 				p.OffsetsTableNameGenerator(topic),

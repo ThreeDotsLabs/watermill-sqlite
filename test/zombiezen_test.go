@@ -1,4 +1,4 @@
-package wmsqlitezombiezen
+package tests
 
 import (
 	"os"
@@ -6,13 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill-sqlite/test"
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/google/uuid"
 	"zombiezen.com/go/sqlite"
 )
 
-func newTestConnection(t *testing.T, connectionDSN string) *sqlite.Conn {
+func newTestConnectionZombiezen(t *testing.T, connectionDSN string) *sqlite.Conn {
 	conn, err := sqlite.OpenConn(connectionDSN)
 	if err != nil {
 		t.Fatal("unable to create test SQLite connetion", err)
@@ -27,13 +27,13 @@ func newTestConnection(t *testing.T, connectionDSN string) *sqlite.Conn {
 	return conn
 }
 
-func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
+func NewPubSubFixtureZombiezen(connectionDSN string) PubSubFixture {
 	return func(t *testing.T, consumerGroup string) (message.Publisher, message.Subscriber) {
-		publisherDB := newTestConnection(t, connectionDSN)
+		publisherDB := newTestConnectionZombiezen(t, connectionDSN)
 
-		pub, err := NewPublisher(
+		pub, err := wmsqlitezombiezen.NewPublisher(
 			publisherDB,
-			PublisherOptions{
+			wmsqlitezombiezen.PublisherOptions{
 				InitializeSchema: true,
 			})
 		if err != nil {
@@ -45,10 +45,10 @@ func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
 			}
 		})
 
-		sub, err := NewSubscriber(connectionDSN,
-			SubscriberOptions{
+		sub, err := wmsqlitezombiezen.NewSubscriber(connectionDSN,
+			wmsqlitezombiezen.SubscriberOptions{
 				PollInterval:         time.Millisecond * 20,
-				ConsumerGroupMatcher: NewStaticConsumerGroupMatcher(consumerGroup),
+				ConsumerGroupMatcher: wmsqlitezombiezen.NewStaticConsumerGroupMatcher(consumerGroup),
 				InitializeSchema:     true,
 			})
 		if err != nil {
@@ -64,11 +64,11 @@ func NewPubSubFixture(connectionDSN string) test.PubSubFixture {
 	}
 }
 
-func NewEphemeralDB(t *testing.T) test.PubSubFixture {
-	return NewPubSubFixture("file:" + uuid.New().String() + "?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
+func NewEphemeralDBZombieZen(t *testing.T) PubSubFixture {
+	return NewPubSubFixtureZombiezen("file:" + uuid.New().String() + "?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
 }
 
-func NewFileDB(t *testing.T) test.PubSubFixture {
+func NewFileDBZombiezen(t *testing.T) PubSubFixture {
 	file := filepath.Join(t.TempDir(), uuid.New().String()+".sqlite3")
 	t.Cleanup(func() {
 		if err := os.Remove(file); err != nil {
@@ -76,7 +76,7 @@ func NewFileDB(t *testing.T) test.PubSubFixture {
 		}
 	})
 	// &_txlock=exclusive
-	return NewPubSubFixture("file:" + file + "?journal_mode=WAL&busy_timeout=5000&secure_delete=true&foreign_keys=true&cache=shared")
+	return NewPubSubFixtureZombiezen("file:" + file + "?journal_mode=WAL&busy_timeout=5000&secure_delete=true&foreign_keys=true&cache=shared")
 }
 
 func TestFullConfirmityToModerncImplementation(t *testing.T) {
@@ -84,18 +84,18 @@ func TestFullConfirmityToModerncImplementation(t *testing.T) {
 	// 	t.Skip("working on acceptance tests")
 	// }
 	t.Run("importedTestsFromModernc", func(t *testing.T) {
-		// fixture := NewFileDB(t)
-		fixture := NewEphemeralDB(t)
-		t.Run("basic functionality", test.TestBasicSendRecieve(fixture))
-		t.Run("one publisher three subscribers", test.TestOnePublisherThreeSubscribers(fixture, 1000))
-		t.Run("perpetual locks", test.TestHungOperations(fixture))
+		// fixture := NewFileDBZombiezen(t)
+		fixture := NewEphemeralDBZombieZen(t)
+		t.Run("basic functionality", TestBasicSendRecieve(fixture))
+		t.Run("one publisher three subscribers", TestOnePublisherThreeSubscribers(fixture, 1000))
+		t.Run("perpetual locks", TestHungOperations(fixture))
 	})
 
 	t.Run("acceptanceTestsImportedFromModernc", func(t *testing.T) {
 		if testing.Short() {
 			t.Skip("acceptance tests take several minutes to complete for all file and memory bound transactions")
 		}
-		t.Run("file bound transactions", test.OfficialImplementationAcceptance(test.PubSubFixture(NewFileDB(t))))
-		t.Run("memory bound transactions", test.OfficialImplementationAcceptance(test.PubSubFixture(NewEphemeralDB(t))))
+		t.Run("file bound transactions", OfficialImplementationAcceptance(PubSubFixture(NewFileDBZombiezen(t))))
+		t.Run("memory bound transactions", OfficialImplementationAcceptance(PubSubFixture(NewEphemeralDBZombieZen(t))))
 	})
 }

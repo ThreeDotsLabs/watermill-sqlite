@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	github.com/ThreeDotsLabs/watermill v1.4.6
-	github.com/ThreeDotsLabs/watermill-sqlite/test v0.0.4
 )
 
 require (

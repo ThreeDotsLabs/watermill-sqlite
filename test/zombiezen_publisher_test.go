@@ -1,8 +1,9 @@
-package wmsqlitezombiezen
+package tests
 
 import (
 	"testing"
 
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/google/uuid"
 	"zombiezen.com/go/sqlite"
@@ -10,8 +11,8 @@ import (
 )
 
 func TestPublisher(t *testing.T) {
-	conn := newTestConnection(t, ":memory:")
-	pub, err := NewPublisher(conn, PublisherOptions{
+	conn := newTestConnectionZombiezen(t, ":memory:")
+	pub, err := wmsqlitezombiezen.NewPublisher(conn, wmsqlitezombiezen.PublisherOptions{
 		InitializeSchema: true,
 	})
 	if err != nil {

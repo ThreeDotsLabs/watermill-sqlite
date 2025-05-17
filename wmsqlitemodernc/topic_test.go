@@ -22,7 +22,7 @@ func TestTopicTableCreation(t *testing.T) {
 		}
 	})
 
-	err = createTopicAndOffsetsTablesIfAbsent(
+	err = CreateTopicAndOffsetsTablesIfAbsent(
 		ctx,
 		db,
 		"messagesTableName",

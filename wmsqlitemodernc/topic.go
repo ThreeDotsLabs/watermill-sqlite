@@ -20,7 +20,7 @@ func validateTopicName(topic string) error {
 	return nil
 }
 
-func createTopicAndOffsetsTablesIfAbsent(ctx context.Context, db SQLiteConnection, messagesTableName, offsetsTableName string) (err error) {
+func CreateTopicAndOffsetsTablesIfAbsent(ctx context.Context, db SQLiteConnection, messagesTableName, offsetsTableName string) (err error) {
 	if err = validateTopicName(messagesTableName); err != nil {
 		return err
 	}

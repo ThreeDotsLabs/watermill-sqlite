@@ -1,18 +1,20 @@
-package wmsqlitezombiezen
+package tests
 
 import (
 	"context"
 	"testing"
 	"time"
+
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen"
 )
 
-func TestExpiringKeyRepository(t *testing.T) {
+func TestExpiringKeyRepository_zombiezen(t *testing.T) {
 	// TODO: replace with t.Context() after Watermill bumps to Golang 1.24
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
-	conn := newTestConnection(t, ":memory:")
-	r, finalizer, err := NewExpiringKeyRepository(ExpiringKeyRepositoryConfiguration{
+	conn := newTestConnectionZombiezen(t, ":memory:")
+	r, finalizer, err := wmsqlitezombiezen.NewExpiringKeyRepository(wmsqlitezombiezen.ExpiringKeyRepositoryConfiguration{
 		Connection: conn,
 	})
 	if err != nil {

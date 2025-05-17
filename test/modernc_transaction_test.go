@@ -1,4 +1,4 @@
-package wmsqlitemodernc
+package tests
 
 import (
 	"context"
@@ -6,18 +6,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/google/uuid"
 )
 
-func TestPublishingInTransaction(t *testing.T) {
-	db := newTestConnection(t, "file:"+uuid.New().String()+"?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
+func TestPublishingInTransaction_modernc(t *testing.T) {
+	db := newTestConnectionModernC(t, "file:"+uuid.New().String()+"?mode=memory&journal_mode=WAL&busy_timeout=1000&secure_delete=true&foreign_keys=true&cache=shared")
 
 	ctx, cancel := context.WithCancel(context.TODO()) // TODO: replace with t.Context() when Watermill bumps up to 1.24
 	defer cancel()
 	topic := "TestPublishingInTransaction"
-	tg := TableNameGenerators{}.WithDefaultGeneratorsInsteadOfNils()
-	if err := createTopicAndOffsetsTablesIfAbsent(
+	tg := wmsqlitemodernc.TableNameGenerators{}.WithDefaultGeneratorsInsteadOfNils()
+	if err := wmsqlitemodernc.CreateTopicAndOffsetsTablesIfAbsent(
 		ctx,
 		db,
 		tg.Topic(topic),
@@ -37,9 +38,9 @@ func TestPublishingInTransaction(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	pub0, err := NewPublisher(
+	pub0, err := wmsqlitemodernc.NewPublisher(
 		tx0,
-		PublisherOptions{
+		wmsqlitemodernc.PublisherOptions{
 			// ParentContext: t.Context(), // TODO: when Watermill upgrades to Golang 1.24
 			TableNameGenerators: tg,
 		},
@@ -75,7 +76,7 @@ func TestPublishingInTransaction(t *testing.T) {
 		t.Fatal("unable to release rows:", err)
 	}
 
-	sub, err := NewSubscriber(db, SubscriberOptions{
+	sub, err := wmsqlitemodernc.NewSubscriber(db, wmsqlitemodernc.SubscriberOptions{
 		PollInterval:        time.Millisecond * 20,
 		LockTimeout:         time.Second,
 		InitializeSchema:    true,
@@ -138,9 +139,9 @@ func TestConcurrentTransactions(t *testing.T) {
 func testConcurrentTransactions(connectionDSN string) func(*testing.T) {
 	return func(t *testing.T) {
 		t.Parallel()
-		db := newTestConnection(t, connectionDSN)
+		db := newTestConnectionModernC(t, connectionDSN)
 		topic := "TestConcurrentTransactions"
-		sub, err := NewSubscriber(db, SubscriberOptions{
+		sub, err := wmsqlitemodernc.NewSubscriber(db, wmsqlitemodernc.SubscriberOptions{
 			InitializeSchema: true,
 		})
 		if err != nil {
@@ -208,9 +209,9 @@ func testConcurrentTransactions(connectionDSN string) func(*testing.T) {
 			message.NewMessage("2", []byte("payload2")),
 		}
 
-		pub0, err := NewPublisher(
+		pub0, err := wmsqlitemodernc.NewPublisher(
 			tx0,
-			PublisherOptions{
+			wmsqlitemodernc.PublisherOptions{
 				// ParentContext: t.Context(), // TODO: when Watermill upgrades to Golang 1.24
 			},
 		)
@@ -221,9 +222,9 @@ func testConcurrentTransactions(connectionDSN string) func(*testing.T) {
 			t.Fatal("cannot publish the first message:", err)
 		}
 
-		pub1, err := NewPublisher(
+		pub1, err := wmsqlitemodernc.NewPublisher(
 			tx1,
-			PublisherOptions{
+			wmsqlitemodernc.PublisherOptions{
 				// ParentContext: t.Context(), // TODO: when Watermill upgrades to Golang 1.24
 			},
 		)
@@ -234,9 +235,9 @@ func testConcurrentTransactions(connectionDSN string) func(*testing.T) {
 			t.Fatal("cannot publish the second message:", err)
 		}
 
-		pubRollback, err := NewPublisher(
+		pubRollback, err := wmsqlitemodernc.NewPublisher(
 			txRollback,
-			PublisherOptions{
+			wmsqlitemodernc.PublisherOptions{
 				// ParentContext: t.Context(), // TODO: when Watermill upgrades to Golang 1.24
 			},
 		)
@@ -247,9 +248,9 @@ func testConcurrentTransactions(connectionDSN string) func(*testing.T) {
 			t.Fatal("cannot publish the roll-back message:", err)
 		}
 
-		pub2, err := NewPublisher(
+		pub2, err := wmsqlitemodernc.NewPublisher(
 			tx2,
-			PublisherOptions{
+			wmsqlitemodernc.PublisherOptions{
 				// ParentContext: t.Context(), // TODO: when Watermill upgrades to Golang 1.24
 			},
 		)
