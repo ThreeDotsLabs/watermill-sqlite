@@ -89,7 +89,10 @@ func (p *publisher) Publish(topic string, messages ...*message.Message) (err err
 	//
 	// ctx := messages[0].Context()
 	ctx := context.Background()
-	p.initializeSchema(ctx, topic, messagesTableName)
+	err = p.initializeSchema(ctx, topic, messagesTableName)
+	if err != nil {
+		return fmt.Errorf("unable to initialize schema for topic %q: %w", topic, err)
+	}
 
 	b := strings.Builder{}
 	_, _ = b.WriteString("INSERT INTO '")
