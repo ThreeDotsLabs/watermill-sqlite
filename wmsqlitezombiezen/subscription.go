@@ -52,7 +52,16 @@ func (s *subscription) NextBatch() (batch []rawMessage, err error) {
 		return nil, err
 	}
 	// closeTransaction := sqlitex.Transaction(s.Connection)
-	defer closeTransaction(&err)
+	defer func() {
+		if len(batch) == 0 && err == nil {
+			// cancel writing the lock to the database
+			// when no messages were fetched
+			// to avoid a database write on every poll interval
+			closeTransaction(&errEmptyBatch)
+			return
+		}
+		closeTransaction(&err)
+	}()
 
 	if err = s.stmtLockConsumerGroup.Reset(); err != nil {
 		return nil, err
@@ -154,7 +163,6 @@ func (s *subscription) ReleaseLock() (err error) {
 		return err
 	}
 	if ok {
-		// return errors.New("acknowledgement returned a result")
 		return ErrMoreRowStepsThanExpected
 	}
 	return nil
@@ -231,6 +239,9 @@ func (s *subscription) Run(ctx context.Context) {
 				s.logger.Error("next message batch query failed", err, nil)
 			}
 			continue
+		}
+		if len(batch) == 0 {
+			continue // the lock is never set on empty batches
 		}
 
 		for _, next := range batch {

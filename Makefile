@@ -47,10 +47,12 @@ fmt:
 	(cd test && go fmt ./... && goimports -l -w .)
 
 update_watermill:
+	(cd test && go get -u github.com/ThreeDotsLabs/watermill@latest && go mod tidy)
 	(cd wmsqlitemodernc && go get -u github.com/ThreeDotsLabs/watermill-sqlite/test@latest && go get -u github.com/ThreeDotsLabs/watermill@latest && go mod tidy)
 	(cd wmsqlitezombiezen && go get -u github.com/ThreeDotsLabs/watermill-sqlite/test@latest && go get -u github.com/ThreeDotsLabs/watermill@latest && go mod tidy)
 
-	sed -i '|^go 1\.|d' wmsqlitemodernc/go.mod wmsqlitezombiezen/go.mod
+	sed -i '|^go 1\.|d' test/go.mod wmsqlitemodernc/go.mod wmsqlitezombiezen/go.mod
+	(cd test && go mod edit -fmt)
 	(cd wmsqlitemodernc && go mod edit -fmt)
 	(cd wmsqlitezombiezen && go mod edit -fmt)
 
