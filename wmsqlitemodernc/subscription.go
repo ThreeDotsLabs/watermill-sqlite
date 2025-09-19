@@ -44,6 +44,13 @@ func (s *subscription) NextBatch(ctx context.Context) (batch []rawMessage, err e
 	}
 	defer func() {
 		if err == nil {
+			if len(batch) == 0 {
+				// cancel writing the lock to the database
+				// when no messages were fetched
+				// to avoid a database write on every poll interval
+				err = tx.Rollback()
+				return
+			}
 			err = tx.Commit()
 		}
 		err = errors.Join(err, tx.Rollback())
@@ -184,6 +191,9 @@ func (s *subscription) Run(ctx context.Context) {
 				s.logger.Error("next message batch query failed", err, nil)
 			}
 			continue
+		}
+		if len(batch) == 0 {
+			continue // the lock is never set on empty batches
 		}
 
 		for _, next := range batch {

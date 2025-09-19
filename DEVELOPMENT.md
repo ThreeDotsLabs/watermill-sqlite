@@ -10,7 +10,17 @@ SQLite3 does not support querying `FOR UPDATE`, which is used for row locking wh
 
 - [ ] Implement SQLite connection back off manager
 
-    A friend recommended implementing a back off manager. I think the SQLite `busy_timeout` produces a linear back off timeout. When attemping to write a row lock, SQLite will freeze the transaction until the previous one is complete up to the `busy_timeout` duration. This should prevent unneccessary waits due to polling. Perhaps this does not work like I imagine. Also, the ZombieZen variant uses immediate transactions, which may ignore the `busy_timeout`. This requires additional investigation before implementing. Implementation examples in other libraries to consider:
+    A friend recommended implementing a back off manager. I think the SQLite `busy_timeout` produces a linear back off timeout. When attemping to write a row lock, SQLite will freeze the transaction until the previous one is complete up to the `busy_timeout` duration. This should prevent unneccessary waits due to polling. Perhaps this does not work like I imagine. Also, the ZombieZen variant uses immediate transactions, which may ignore the `busy_timeout`. This requires additional investigation before implementing.
+
+    Here is an example attempt: https://github.com/sandpapersoftware/watermillsqlite
+
+    The busy waiting loop, that polls the next batches causes a modification to the database (sets the lock)
+    this causes tools like litestream to write wal files to their replicas every poll interval
+    this makes a restore incredibly slow and causes a constant drain on the cpu.
+
+    I wonder if a rollback in a batch == 0 case, wouldn't be enough to release the lock or you only set the lock, when a batch is > 0? Lock + read operation are in the same transaction; I think I can just cancel the transaction if the batch size is 0 to prevent the write.
+
+    Implementation examples in other libraries to consider:
 
     - https://github.com/ThreeDotsLabs/watermill-sql/blob/master/pkg/sql/backoff_manager.go
     - https://github.com/ov2b/watermill-sqlite3/blob/main/reset_latch_backoff_manager.go

@@ -37,6 +37,12 @@ const (
 	// This can only happen if there is a mistake in the SQLite query. Can occur if more than one row is returned
 	// when one was expected or none were expected. You should never see this error.
 	ErrMoreRowStepsThanExpected
+
+	// ErrEmptyBatch is a sentinel error indicating the absence of new topic messages.
+	// This error is used to cancel the database transaction and the row lock
+	// when there are no new messages available. This prevents the subscriber
+	// from writing to the database every poll interval when the topic is idle.
+	ErrEmptyBatch
 )
 
 func (e Error) Error() string {
@@ -55,7 +61,11 @@ func (e Error) Error() string {
 		return "consumer group is already locked by another consumer"
 	case ErrMoreRowStepsThanExpected:
 		return "more rows returned than expected"
+	case ErrEmptyBatch:
+		return "there are no new messages"
 	default:
 		return "unknown error"
 	}
 }
+
+var errEmptyBatch error = ErrEmptyBatch // reference container for the error
