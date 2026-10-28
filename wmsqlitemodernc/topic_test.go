@@ -43,7 +43,11 @@ func TestTopicTableCreation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer rows.Close()
+	defer func() {
+		if err := rows.Close(); err != nil {
+			t.Error(err)
+		}
+	}()
 
 	tables := make([]string, 0)
 	for rows.Next() {
