@@ -7,8 +7,8 @@ This is Pub/Sub for the [Watermill](https://watermill.io/) project. The implemen
 
 **Beta Version Warning: this Pub/Sub is stable, but it has not been widely tested in production environments. It may be sensitive to certain edge cases and combinations of configuration parameters.**
 
-1. ModernC [![Go Reference](https://pkg.go.dev/badge/github.com/ThreeDotsLabs/watermill.svg)](https://pkg.go.dev/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc) [![Go Report Card](https://goreportcard.com/badge/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc)](https://goreportcard.com/report/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc)
-2. ZombieZen [![Go Reference](https://pkg.go.dev/badge/github.com/ThreeDotsLabs/watermill.svg)](https://pkg.go.dev/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen) [![Go Report Card](https://goreportcard.com/badge/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen)](https://goreportcard.com/report/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen)
+1. ModernC [![Go Reference](https://pkg.go.dev/badge/github.com/ThreeDotsLabs/watermill.svg)](https://pkg.go.dev/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc)
+2. ZombieZen [![Go Reference](https://pkg.go.dev/badge/github.com/ThreeDotsLabs/watermill.svg)](https://pkg.go.dev/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen)
 
 See [DEVELOPMENT.md](./DEVELOPMENT.md) for more information about running and testing.
 
