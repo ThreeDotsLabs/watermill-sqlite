@@ -86,8 +86,6 @@ SQLite3 does not support querying `FOR UPDATE`, which is used for row locking wh
 
 ## Vanilla ModernC Driver
 [![Go Reference](https://pkg.go.dev/badge/github.com/ThreeDotsLabs/watermill.svg)](https://pkg.go.dev/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc)](https://goreportcard.com/report/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc)
-[![codecov](https://codecov.io/gh/dkotik/watermillsqlite/wmsqlitemodernc/branch/master/graph/badge.svg)](https://codecov.io/gh/dkotik/watermillsqlite/wmsqlitemodernc)
 
 ```sh
 go get -u github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitemodernc
@@ -128,8 +126,6 @@ if err != nil {
 
 ## Advanced ZombieZen Driver
 [![Go Reference](https://pkg.go.dev/badge/github.com/ThreeDotsLabs/watermill.svg)](https://pkg.go.dev/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen)](https://goreportcard.com/report/github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen)
-[![codecov](https://codecov.io/gh/dkotik/watermillsqlite/wmsqlitezombiezen/branch/master/graph/badge.svg)](https://codecov.io/gh/dkotik/watermillsqlite/wmsqlitezombiezen)
 
 ```sh
 go get -u github.com/ThreeDotsLabs/watermill-sqlite/wmsqlitezombiezen
