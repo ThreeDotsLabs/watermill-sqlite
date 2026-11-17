@@ -24,6 +24,12 @@ func OfficialImplementationAcceptance(fixture PubSubFixture) func(t *testing.T) 
 			// Some Pub/Subs guarantee the order only when one subscriber is subscribed at a time.
 			GuaranteedOrderWithSingleSubscriber: true,
 
+			// GuaranteedTotalOrder should be true if all messages published to a topic are received
+			// in the order they were published. Every topic is a single table with an AUTOINCREMENT offset,
+			// SQLite serializes writers so offsets are committed in order, and a consumer group reads
+			// by ascending offset while holding the group's row lock.
+			GuaranteedTotalOrder: true,
+
 			// Persistent should be true, if messages are persistent between multiple instances of a Pub/Sub
 			// (in practice, only GoChannel doesn't support that).
 			Persistent: true,
